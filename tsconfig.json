@@ -1,0 +1,16 @@
+{
+	//"extends": "./node_modules/@dzeio/config/tsconfig.base.json",
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"outDir": "dist",
+		"target": "ES2022",
+		"module": "NodeNext",
+		"skipLibCheck": true
+	},
+	"files": [
+		"main.ts"
+	],
+	"exclude": [
+		"node_modules"
+	]
+}
