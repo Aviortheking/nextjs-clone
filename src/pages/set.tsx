@@ -1,5 +1,6 @@
 import React from 'react'
-import TCGdex, { Card, Set } from '@tcgdex/sdk'
+import type { Set } from '@tcgdex/sdk'
+import TCGdex from '@tcgdex/sdk'
 
 export default class Component extends React.Component<{card: Set}> {
 

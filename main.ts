@@ -1,17 +1,29 @@
 import express, { Request } from 'express'
-import { createServer } from 'vite'
+import { createServer, ViteDevServer } from 'vite'
 import fs from 'fs/promises'
 
-// const isProd = process.env.NODE_ENV === 'production'
-const isProd = true
+const isProd = process.env.NODE_ENV === 'production'
+// const isProd = false //true
+
+// if (isProd) {
+// 	process.env.NODE_ENV = 'production'
+// } else {
+// 	process.env.NODE_ENV = 'development'
+
+// }
+
+let vite: ViteDevServer | null = null
 
 ;(async () => {
 	const server = express()
-	
-	const vite = await createServer({
-		server: {middlewareMode: true},
-		appType: 'custom'
-	})
+
+	if (!isProd) {
+		vite = await createServer({
+			server: {middlewareMode: true},
+			appType: 'custom'
+		})
+		server.use(vite.middlewares)
+	}
 
 	let index = await fs.readFile('./dist/client/index.html', 'utf-8')
 
@@ -20,33 +32,40 @@ const isProd = true
 		index = await fs.readFile('./index.html', 'utf-8')
 	}
 
-	server.use(vite.middlewares)
 
+	if (isProd) {
+		server.use('/assets', express.static('./dist/client/assets'))
+	}
 	server.use('/', express.static('public'))
 	
-	
+	let render: ((url: Request) => Promise<string>) | null = null
+
+	if (isProd) {
+		/** @ts-expect-error why not m*therfucker */
+		const route: any = await import('./server/entry-server.js')
+		render = route.render as any
+	} else if (vite) {
+		const route = await vite.ssrLoadModule('/src/entry-server.tsx')
+		render = route.render
+	}
+
+	if (!render) {
+		throw new Error('Renderer not found :O')
+		process.exit(1)
+	}
 	
 	server.use(async (req, res) => {
 
 		const url = req.originalUrl
 
-		const template = await vite.transformIndexHtml(url, index)
-
-		let render: ((url: Request) => Promise<string>) | null = null
-
-		if (isProd) {
-			/** @ts-expect-error why not m*therfucker */
-			const route: any = await import('./server/entry-server.js')
-			render = route.render as any
-		} else {
-			const route = await vite.ssrLoadModule('/src/entry-server.tsx')
-			render = route.render
-		}
-
-		if (!render) {
-			return res.status(500).end('Error')
+		let template: string = index
+		if (vite) {
+			template = await vite.transformIndexHtml(url, index)
 		}
 		
+		if (!render) {
+			throw new Error('Renderer not found :O')
+		}
 
 		const appHtml = await render(req)
 

@@ -1,22 +1,24 @@
 import React from 'react'
+import type { CommProps } from '../interfaces'
 
 interface AppProps {
-	children: React.ReactNode
+	component: any
+	path: string
+	pageProps: any
 }
 
 export default class App extends React.Component<AppProps> {
 	public render = () => (
 		<>
-			<html>
-				<head>
-					<script
-					type='application/json'
-					id="__PROPS"
-					dangerouslySetInnerHTML={{__html: JSON.stringify(this.props)}}
-					></script>
-				</head>
-				<body>{this.props.children}</body>
-			</html>
+			<script
+				type='application/json'
+				id="__PROPS"
+				dangerouslySetInnerHTML={{__html: JSON.stringify({
+					pageProps: this.props.pageProps,
+					path: this.props.path
+				} as CommProps)}}
+			></script>
+			<this.props.component {...this.props.pageProps} />
 		</>
 	)
 }

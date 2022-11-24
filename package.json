@@ -3,14 +3,16 @@
 	"version": "1.0.0",
 	"type": "module",
 	"scripts": {
-		"dev": "ts-node -T --project tsconfig.json main.tsx",
+		"dev": "NODE_ENV=\"development\" ts-node-esm -T --project tsconfig.json main.ts",
 		"build": "npm run build:client && npm run build:server",
 		"build:client": "vite build --outDir dist/client --ssrManifest",
-		"build:server": "vite build --outDir dist/server --ssr src/entry-server.tsx && tsc --project tsconfig.json"
+		"build:server": "vite build --outDir dist/server --ssr src/entry-server.tsx && tsc --project tsconfig.pages.json && tsc --project tsconfig.json",
+		"start": "NODE_ENV=\"production\" node dist/main.js"
 	},
 	"dependencies": {
 		"@dzeio/config": "^1.1.8",
 		"@tcgdex/sdk": "^2.4.7",
+		"dotenv": "^16.0.3",
 		"express": "^4.18.2",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
