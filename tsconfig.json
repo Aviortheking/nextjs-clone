@@ -1,5 +1,5 @@
 {
-	//"extends": "./node_modules/@dzeio/config/tsconfig.base.json",
+	"extends": "./node_modules/@dzeio/config/tsconfig.base.json",
 	"compilerOptions": {
 		"jsx": "react-jsx",
 		"outDir": "dist",
@@ -32,6 +32,9 @@
 		"noImplicitReturns": true,
 		"noFallthroughCasesInSwitch": true
 	},
+	"include": [
+		"src"
+	],
 	"files": [
 		"main.ts"
 	],

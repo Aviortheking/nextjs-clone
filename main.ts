@@ -58,9 +58,21 @@ let vite: ViteDevServer | null = null
 
 		const url = req.originalUrl
 
-		let template: string = index
-		if (vite) {
-			template = await vite.transformIndexHtml(url, index)
+		const template = await vite.transformIndexHtml(url, index)
+
+		let render: ((url: Request) => Promise<string>) | null = null
+
+		if (isProd) {
+			/** @ts-expect-error why not m*therfucker */
+			const route: any = await import('./server/entry-server.js')
+			render = route.render as any
+		} else {
+			const route = await vite.ssrLoadModule('/src/entry-server2.ts')
+			render = route.render
+		}
+
+		if (!render) {
+			return res.status(500).end('Error')
 		}
 		
 		if (!render) {
@@ -85,7 +97,7 @@ let vite: ViteDevServer | null = null
 		// res.send(`<!DOCTYPE html>` + renderToString(<App><route.default {...props} /></App>))
 	})
 	
-	server.listen(8080, () => {
+	server.listen(3000, () => {
 		console.log('Server Started!')
 	})
 })()
